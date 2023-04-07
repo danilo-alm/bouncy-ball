@@ -7,11 +7,12 @@ class BouncyBall
 {
 private:
     sf::Vector2f position;
-    sf::Vector2f acceleration = sf::Vector2f(0.4, 0.5);
+    sf::Vector2f acceleration = sf::Vector2f(0.5, 0.5);
     sf::Vector2f maxVelocity = sf::Vector2f(10, 10000);
     sf::Vector2f velocity = sf::Vector2f(0, 0);
     sf::CircleShape circle;
     bool isJumping = true;
+    bool willBounce = false;  // will start bouncing on next frame
     float frictionStrength = 0.15;
 
 public:
@@ -65,6 +66,12 @@ public:
     }
     void updatePhysics(uint32_t& windowWidth, uint32_t& windowHeight)
     {
+        if (willBounce)
+        {
+            willBounce = false;
+            velocity.y = (velocity.y - 5) * -1;
+        }
+
         // Gravity
         float nextYVelocity = velocity.y + acceleration.y;
         float nextYPosition = position.y + velocity.y;
@@ -78,8 +85,16 @@ public:
         else
         {
             isJumping = false;
-            velocity.y = 0.f;
             position.y = windowHeight - circle.getRadius();
+
+            if (velocity.y > 0.3)
+            {
+                willBounce = true;
+            }
+            else
+            {
+                velocity.y = 0;
+            }
         }
 
         // Account for floating point imprecision
@@ -99,12 +114,12 @@ public:
         if (xNewPosition - circle.getRadius() < 0)
         {
             position.x = circle.getRadius();
-            velocity.x = 0;
+            velocity.x *= -1;
         }
         else if (xNewPosition + circle.getRadius() > windowWidth)
         {
             position.x = windowWidth - circle.getRadius();
-            velocity.x = 0;
+            velocity.x *= -1;
         }
         else
         {
