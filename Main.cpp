@@ -7,11 +7,12 @@ class BouncyBall
 {
 private:
     sf::Vector2f position;
-    sf::Vector2f acceleration = sf::Vector2f(0.5, 0.5);
-    sf::Vector2f maxVelocity = sf::Vector2f(20, 20);
+    sf::Vector2f acceleration = sf::Vector2f(0.4, 0.5);
+    sf::Vector2f maxVelocity = sf::Vector2f(7, 1000);
     sf::Vector2f velocity = sf::Vector2f(0, 0);
     sf::CircleShape circle;
     bool isJumping = true;
+    float frictionStrength = 0.15;
 
 public:
     BouncyBall(float pos_x, float pos_y, float radius)
@@ -26,19 +27,39 @@ public:
     }
     void moveSideways(Side side)
     {
+        if (isJumping)
+        {
+            return;
+        }
+
+        float xNewVelocity;
         switch (side)
         {
             case left:
+                xNewVelocity = velocity.x - acceleration.x;
                 break;
             case right:
+                xNewVelocity = velocity.x + acceleration.x;
                 break;
+        }
+        if (xNewVelocity > maxVelocity.x)
+        {
+            velocity.x = maxVelocity.x;
+        }
+        else if (xNewVelocity < maxVelocity.x * -1)
+        {
+            velocity.x = maxVelocity.x * -1;
+        }
+        else
+        {
+            velocity.x = xNewVelocity;
         }
     }
     void jump()
     {
         if (!isJumping)
         {
-            velocity.y = -23;
+            velocity.y = -15;
             isJumping = true;
         }
     }
@@ -59,6 +80,19 @@ public:
             position.y = windowHeight - circle.getRadius();
         }
 
+        // Account for floating point imprecision
+        if (velocity.x > -0.1 && velocity.x < 0.1)
+        {
+            velocity.x = 0;
+        }
+
+        // Friction
+        if (!isJumping)
+        {
+            velocity.x *= 0.975;
+        }
+        position.x += velocity.x;
+
         circle.setPosition(position);
     }
     void render(sf::RenderWindow& window)
@@ -72,6 +106,10 @@ public:
     bool getIsJumping()
     {
         return isJumping;
+    }
+    sf::Vector2f getAcceleration()
+    {
+        return acceleration;
     }
 };
 
@@ -107,21 +145,56 @@ int main()
     sf::Text isJumpingText;
     setTextUp(isJumpingText, font, 10, 70);
 
+    sf::Text xAccelerationText;
+    xAccelerationText.setString("Acceleration: 0.000000");  // template
+    setTextUp(xAccelerationText, font, 0, 0);
+
+    sf::Text yAccelerationText;
+    setTextUp(yAccelerationText, font, 0, 0);
+
+    sf::FloatRect textBounds = xAccelerationText.getLocalBounds();
+    xAccelerationText.setPosition(window.getSize().x - textBounds.width - 25, 10);
+    yAccelerationText.setPosition(window.getSize().x - textBounds.width - 25, 40);
+
     while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) window.close();
+            switch (event.type)
+            {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+                
+                case sf::Event::KeyPressed:
+                    switch (event.key.code)
+                    {
+                        case sf::Keyboard::Escape:
+                            window.close();
+                            break;
+                        
+                        case sf::Keyboard::A:
+                            bouncyBall.moveSideways(left);
+                            break;
+                        
+                        case sf::Keyboard::D:
+                            bouncyBall.moveSideways(right);
+                            break;
+                        
+                        case sf::Keyboard::Space:
+                            bouncyBall.jump();
+                            break;
+                    }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) bouncyBall.moveSideways(left);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) bouncyBall.moveSideways(right);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) bouncyBall.jump();
+            }
         }
 
         xVelocitytext.setString("X velocity: " + std::to_string(bouncyBall.getVelocity().x));
         yVelocitytext.setString("Y velocity: " + std::to_string(bouncyBall.getVelocity().y));
         isJumpingText.setString("Is jumping: " + std::to_string(bouncyBall.getIsJumping()));
+        xAccelerationText.setString("X acceleration " + std::to_string(bouncyBall.getAcceleration().x));
+        yAccelerationText.setString("Y acceleration " + std::to_string(bouncyBall.getAcceleration().y));
 
         window.clear();
 
@@ -131,6 +204,8 @@ int main()
         window.draw(xVelocitytext);
         window.draw(yVelocitytext);
         window.draw(isJumpingText);
+        window.draw(xAccelerationText);
+        window.draw(yAccelerationText);
 
         window.display();
     }
