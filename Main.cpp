@@ -124,16 +124,9 @@ public:
             acceleration.x -= 0.05;
         }
     }
-    void modifyYAcceleration(short change)
+    void modifyYAcceleration(float change)
     {
-        if (change > 0)
-        {
-            acceleration.y += 0.05;
-        }
-        else
-        {
-            acceleration.y -= 0.05;
-        }
+        acceleration.y += change;
     }
     void render(sf::RenderWindow& window)
     {
@@ -231,11 +224,11 @@ int main()
                             break;
                         
                         case sf::Keyboard::W:
-                            bouncyBall.modifyYAcceleration(1);
+                            bouncyBall.modifyYAcceleration(0.05);
                             break;
                         
                         case sf::Keyboard::S:
-                            bouncyBall.modifyYAcceleration(-1);
+                            bouncyBall.modifyYAcceleration(-0.05);
                             break;
                     }
 
