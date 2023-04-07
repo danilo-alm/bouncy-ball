@@ -8,7 +8,7 @@ class BouncyBall
 private:
     sf::Vector2f position;
     sf::Vector2f acceleration = sf::Vector2f(0.4, 0.5);
-    sf::Vector2f maxVelocity = sf::Vector2f(1000, 1000);
+    sf::Vector2f maxVelocity = sf::Vector2f(10, 10000);
     sf::Vector2f velocity = sf::Vector2f(0, 0);
     sf::CircleShape circle;
     bool isJumping = true;
@@ -113,7 +113,7 @@ public:
 
         circle.setPosition(position);
     }
-    void mofifyXAcceleration(short change)
+    void modifyXAcceleration(short change)
     {
         if (change > 0)
         {
@@ -122,6 +122,17 @@ public:
         else
         {
             acceleration.x -= 0.05;
+        }
+    }
+    void modifyYAcceleration(short change)
+    {
+        if (change > 0)
+        {
+            acceleration.y += 0.05;
+        }
+        else
+        {
+            acceleration.y -= 0.05;
         }
     }
     void render(sf::RenderWindow& window)
@@ -197,7 +208,7 @@ int main()
                     break;
                 
                 case sf::Event::MouseWheelMoved:
-                    bouncyBall.mofifyXAcceleration(event.mouseWheel.delta);
+                    bouncyBall.modifyXAcceleration(event.mouseWheel.delta);
                     break;
 
                 case sf::Event::KeyPressed:
@@ -217,6 +228,14 @@ int main()
                         
                         case sf::Keyboard::Space:
                             bouncyBall.jump();
+                            break;
+                        
+                        case sf::Keyboard::W:
+                            bouncyBall.modifyYAcceleration(1);
+                            break;
+                        
+                        case sf::Keyboard::S:
+                            bouncyBall.modifyYAcceleration(-1);
                             break;
                     }
 
