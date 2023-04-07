@@ -1,6 +1,6 @@
 # Bouncy Ball
 
-My first project done with C++ and the [SFML](https://www.sfml-dev.org/) library. It's quite simple, so if you tweak the numbers you'll encounter bugs in the physics. Here's a [video](https://youtu.be/4fu6svGZZ5E) of it.
+My first project done with C++ and the [SFML](https://www.sfml-dev.org/) library. It's quite simple, so if you tweak the numbers you'll encounter bugs in the physics. Here's a [video](https://youtu.be/meZCYtEhSE0) of it.
 
 To compile it, [download](https://www.sfml-dev.org/download.php) and install SFML and compile the code with
 ```
