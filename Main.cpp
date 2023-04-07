@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 enum Side {left, right};
 
@@ -68,6 +67,8 @@ public:
         // Gravity
         float nextYVelocity = velocity.y + acceleration.y;
         float nextYPosition = position.y + velocity.y;
+
+        // Collision (ground)
         if (nextYPosition < windowHeight - circle.getRadius())
         {
             velocity.y = nextYVelocity;
@@ -91,7 +92,23 @@ public:
         {
             velocity.x *= 0.975;
         }
-        position.x += velocity.x;
+
+        // Collision (walls)
+        float xNewPosition = position.x + velocity.x;
+        if (xNewPosition - circle.getRadius() < 0)
+        {
+            position.x = circle.getRadius();
+            velocity.x = 0;
+        }
+        else if (xNewPosition + circle.getRadius() > windowWidth)
+        {
+            position.x = windowWidth - circle.getRadius();
+            velocity.x = 0;
+        }
+        else
+        {
+            position.x = xNewPosition;
+        }
 
         circle.setPosition(position);
     }
