@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 enum Side {left, right};
 
@@ -7,7 +8,7 @@ class BouncyBall
 private:
     sf::Vector2f position;
     sf::Vector2f acceleration = sf::Vector2f(0.4, 0.5);
-    sf::Vector2f maxVelocity = sf::Vector2f(7, 1000);
+    sf::Vector2f maxVelocity = sf::Vector2f(1000, 1000);
     sf::Vector2f velocity = sf::Vector2f(0, 0);
     sf::CircleShape circle;
     bool isJumping = true;
@@ -112,6 +113,17 @@ public:
 
         circle.setPosition(position);
     }
+    void mofifyXAcceleration(short change)
+    {
+        if (change > 0)
+        {
+            acceleration.x += 0.05;
+        }
+        else
+        {
+            acceleration.x -= 0.05;
+        }
+    }
     void render(sf::RenderWindow& window)
     {
         window.draw(circle);
@@ -184,6 +196,10 @@ int main()
                     window.close();
                     break;
                 
+                case sf::Event::MouseWheelMoved:
+                    bouncyBall.mofifyXAcceleration(event.mouseWheel.delta);
+                    break;
+
                 case sf::Event::KeyPressed:
                     switch (event.key.code)
                     {
