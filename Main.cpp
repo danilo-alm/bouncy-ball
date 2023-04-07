@@ -60,8 +60,7 @@ public:
     {
         if (!isJumping)
         {
-            velocity.y = -15;
-            isJumping = true;
+            velocity.y = -20;
         }
     }
     void updatePhysics(uint32_t& windowWidth, uint32_t& windowHeight)
@@ -81,6 +80,7 @@ public:
         {
             velocity.y = nextYVelocity;
             position.y = nextYPosition;
+            isJumping = true;
         }
         else
         {
@@ -90,6 +90,7 @@ public:
             if (velocity.y > 0.3)
             {
                 willBounce = true;
+                isJumping = true;
             }
             else
             {
