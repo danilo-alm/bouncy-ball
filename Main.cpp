@@ -42,10 +42,10 @@ public:
 
         if (yNextPosition >= windowHeight - m_Radius)
         {
-            m_Velocity.y = 0;
+            m_Velocity.y = (m_Velocity.y - 150) * -1;
             m_IsJumping = false;
             m_Position.y = windowHeight - m_Radius;
-
+        
             if (m_WillJump)
             {
                 m_Velocity.y = -1500;
