@@ -4,9 +4,9 @@
 class BouncyBall
 {
 private:
-    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {20, 1};
+    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {35, 35};
     sf::CircleShape ball;
-    bool m_IsJumping = false, m_WillBounce = false;
+    bool m_IsJumping = false, m_WillBounce = false, m_WillJump = false;
     float m_Radius;
 
 public:
@@ -29,7 +29,7 @@ public:
                 std::cout << "Pressed D" << std::endl;
                 break;
             case sf::Keyboard::Space:
-                std::cout << "Pressed Spacebar" << std::endl;
+                Jump();
                 break;
         }
     }
@@ -37,18 +37,34 @@ public:
     void UpdatePhysics(const int& windowWidth, const int& windowHeight, sf::Time& dt)
     {
         // Gravity
-        if (m_Position.y >= windowHeight - m_Radius)
+        m_Velocity.y += m_Acceleration.y;
+        float yNextPosition = m_Position.y + m_Velocity.y * dt.asSeconds();
+
+        if (yNextPosition >= windowHeight - m_Radius)
         {
             m_Velocity.y = 0;
+            m_IsJumping = false;
             m_Position.y = windowHeight - m_Radius;
+
+            if (m_WillJump)
+            {
+                m_Velocity.y = -1500;
+                m_WillJump = false;
+            }
         }
         else
         {
-            m_Velocity.y += m_Acceleration.y;
-            m_Position.y += m_Velocity.y * dt.asSeconds();
+            m_Position.y = yNextPosition;
+            m_WillJump = false;
         }
 
         ball.setPosition(m_Position);
+    }
+
+    void Jump()
+    {
+        if (!m_IsJumping)
+            m_WillJump = true;
     }
 
     void Render(sf::RenderWindow& window)
