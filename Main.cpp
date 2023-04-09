@@ -1,12 +1,14 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+enum Side { left, right };
+
 class BouncyBall
 {
 private:
-    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {35, 35};
+    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {2, 35};
     sf::CircleShape ball;
-    bool m_IsJumping = false, m_WillBounce = false, m_WillJump = false;
+    bool m_IsJumping = false, m_WillJump = false;
     float m_Radius;
 
 public:
@@ -23,10 +25,10 @@ public:
         switch (keyCode)
         {
             case sf::Keyboard::A:
-                std::cout << "Pressed A" << std::endl;
+                MoveSideways(left);
                 break;
             case sf::Keyboard::D:
-                std::cout << "Pressed D" << std::endl;
+                MoveSideways(right);
                 break;
             case sf::Keyboard::Space:
                 Jump();
@@ -42,7 +44,6 @@ public:
 
         if (yNextPosition >= windowHeight - m_Radius)
         {
-            m_Velocity.y = (m_Velocity.y - 150) * -1;
             m_IsJumping = false;
             m_Position.y = windowHeight - m_Radius;
         
@@ -50,7 +51,15 @@ public:
             {
                 m_Velocity.y = -1500;
                 m_WillJump = false;
+                m_IsJumping = true;
             }
+            else
+            {
+                m_Velocity.y = 0;
+            }
+
+            // Attrict
+            m_Velocity.x *= .95f;
         }
         else
         {
@@ -58,7 +67,24 @@ public:
             m_WillJump = false;
         }
 
+        m_Position.x += m_Velocity.x;
+
         ball.setPosition(m_Position);
+    }
+
+    void MoveSideways(Side side)
+    {
+        if (m_IsJumping)
+            return;
+        switch (side)
+        {
+            case left:
+                m_Velocity.x -= m_Acceleration.x;
+                break;
+            case right:
+                m_Velocity.x += m_Acceleration.x;
+                break;
+        }
     }
 
     void Jump()
@@ -70,6 +96,11 @@ public:
     void Render(sf::RenderWindow& window)
     {
         window.draw(ball);
+    }
+
+    inline bool GetIsJumping()
+    {
+        return m_IsJumping;
     }
 };
 
