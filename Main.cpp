@@ -4,41 +4,73 @@
 class BouncyBall
 {
 private:
-    sf::Vector2f m_Position, m_Acceleration, m_Velocity;
+    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {20, 1};
     sf::CircleShape ball;
-    bool m_IsJumping, m_WillBounce;
+    bool m_IsJumping = false, m_WillBounce = false;
+    float m_Radius;
+
 public:
     BouncyBall(float pos_x, float pos_y, float radius)
-        : m_Position(pos_x, pos_y)
+        : m_Position(pos_x, pos_y), m_Radius(radius)
     {
-        m_IsJumping = false;
-        m_WillBounce = false;
-        
         ball.setRadius(radius);
         ball.setOrigin(radius, radius);
         ball.setPosition(m_Position);
     }
 
-    void HandleInput(sf::Keyboard::Key keyCode)
+    void HandleInput(sf::Keyboard::Key& keyCode)
     {
         switch (keyCode)
         {
             case sf::Keyboard::A:
                 std::cout << "Pressed A" << std::endl;
                 break;
+            case sf::Keyboard::D:
+                std::cout << "Pressed D" << std::endl;
+                break;
+            case sf::Keyboard::Space:
+                std::cout << "Pressed Spacebar" << std::endl;
+                break;
         }
+    }
+
+    void UpdatePhysics(const int& windowWidth, const int& windowHeight, sf::Time& dt)
+    {
+        // Gravity
+        if (m_Position.y >= windowHeight - m_Radius)
+        {
+            m_Velocity.y = 0;
+            m_Position.y = windowHeight - m_Radius;
+        }
+        else
+        {
+            m_Velocity.y += m_Acceleration.y;
+            m_Position.y += m_Velocity.y * dt.asSeconds();
+        }
+
+        ball.setPosition(m_Position);
+    }
+
+    void Render(sf::RenderWindow& window)
+    {
+        window.draw(ball);
     }
 };
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Bouncy Ball");
+    const int windowWidth = 1280;
+    const int windowHeight = 720;
+    sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Bouncy Ball");
     window.setFramerateLimit(75);
 
-    BouncyBall bouncyBall(0, 0, 20);
+    BouncyBall bouncyBall(640, 200, 30);
+
+    sf::Clock deltaClock;
 
     while (window.isOpen())
     {
+        sf::Time dt = deltaClock.restart();
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -56,5 +88,10 @@ int main()
                     break;
             }
         }
+
+        window.clear();
+        bouncyBall.UpdatePhysics(windowWidth, windowHeight, dt);
+        bouncyBall.Render(window);
+        window.display();
     }
 }
