@@ -67,7 +67,7 @@ public:
         
             if (m_WillJump)
             {
-                m_Velocity.y = -1300;
+                m_Velocity.y = -1500;
                 m_WillJump = false;
                 m_IsJumping = true;
             }
