@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 enum Side { left, right };
 
@@ -19,18 +20,36 @@ public:
         ball.setPosition(m_Position);
     }
 
-    void HandleInput(sf::Keyboard::Key& keyCode)
+    void HandleInput(sf::Event& event)
     {
-        switch (keyCode)
+        switch (event.type)
         {
-            case sf::Keyboard::A:
-                MoveSideways(left);
+            case sf::Event::MouseWheelMoved:
+                if (event.mouseWheel.delta > 0)
+                    m_Acceleration.x += 5;
+                else
+                    m_Acceleration.x -= 5;
                 break;
-            case sf::Keyboard::D:
-                MoveSideways(right);
-                break;
-            case sf::Keyboard::Space:
-                Jump();
+            
+            case sf::Event::KeyPressed:
+                switch (event.key.code)
+                {
+                    case sf::Keyboard::A:
+                        MoveSideways(left);
+                        break;
+                    case sf::Keyboard::D:
+                        MoveSideways(right);
+                        break;
+                    case sf::Keyboard::W:
+                        m_Acceleration.y += 5;
+                        break;
+                    case sf::Keyboard::S:
+                        m_Acceleration.y -= 5;
+                        break;
+                    case sf::Keyboard::Space:
+                        Jump();
+                        break;
+                }
                 break;
         }
     }
@@ -187,7 +206,11 @@ int main()
                     if (event.key.code == sf::Keyboard::Escape)
                         window.close();
                     else
-                        bouncyBall.HandleInput(event.key.code);
+                        bouncyBall.HandleInput(event);
+                    break;      
+
+                case sf::Event::MouseWheelMoved:
+                    bouncyBall.HandleInput(event);
                     break;
             }
         }
