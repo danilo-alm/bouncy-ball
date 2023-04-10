@@ -1,12 +1,11 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 enum Side { left, right };
 
 class BouncyBall
 {
 private:
-    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {100, 35};  // m_Acceleration.y = gravity
+    sf::Vector2f m_Position, m_Velocity, m_Acceleration = {70, 35};  // m_Acceleration.y = gravity
     sf::CircleShape ball;
     bool m_IsJumping = true, m_WillJump = false;
     float m_Radius;
@@ -36,11 +35,11 @@ public:
         }
     }
 
-    void UpdatePhysics(const uint32_t& windowWidth, const uint32_t& windowHeight, sf::Time& dt)
+    void UpdatePhysics(const uint32_t& windowWidth, const uint32_t& windowHeight, float dtSeconds)
     {
         // Gravity
         float yNextVelocity = m_Velocity.y + m_Acceleration.y;
-        float yNextPosition = m_Position.y + yNextVelocity * dt.asSeconds();
+        float yNextPosition = m_Position.y + yNextVelocity * dtSeconds;
 
         if (yNextPosition >= windowHeight - m_Radius)
         {
@@ -49,7 +48,7 @@ public:
         
             if (m_WillJump)
             {
-                m_Velocity.y = -1500;
+                m_Velocity.y = -1300;
                 m_WillJump = false;
                 m_IsJumping = true;
             }
@@ -67,7 +66,7 @@ public:
             }
 
             // Friction
-            m_Velocity.x *= .9f;
+            m_Velocity.x *= .975f;
         }
         else
         {
@@ -77,10 +76,19 @@ public:
         }
 
         // Walls
-        if (m_Position.x > windowWidth - m_Radius || m_Position.x < m_Radius)
+        float xNextPosition = m_Position.x + m_Velocity.x * dtSeconds;
+        if (xNextPosition > windowWidth - m_Radius)
+        {
+            m_Position.x = windowWidth - m_Radius;
             m_Velocity.x *= -1;
-
-        m_Position.x += m_Velocity.x * dt.asSeconds();
+        }
+        else if (xNextPosition < m_Radius)
+        {
+            m_Position.x = m_Radius;
+            m_Velocity.x *= -1;
+        }
+        else
+            m_Position.x = xNextPosition;
 
         ball.setPosition(m_Position);
     }
@@ -111,20 +119,11 @@ public:
         window.draw(ball);
     }
 
-    inline bool GetIsJumping()
-    {
-        return m_IsJumping;
-    }
+    inline bool GetIsJumping() { return m_IsJumping; }
 
-    inline sf::Vector2f GetAcceleration()
-    {
-        return m_Acceleration;
-    }
+    inline sf::Vector2f GetAcceleration() { return m_Acceleration; }
 
-    inline sf::Vector2f GetVelocity()
-    {
-        return m_Velocity;
-    }
+    inline sf::Vector2f GetVelocity() { return m_Velocity; }
 };
 
 void setTextUp(sf::Text& text, sf::Font& font, float pos_x, float pos_y)
@@ -142,7 +141,6 @@ int main()
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Bouncy Ball");
     window.setFramerateLimit(75);
 
-    //BouncyBall bouncyBall(640, 200, 30);
     BouncyBall bouncyBall(640, 880, 30);
 
     sf::Font font;
@@ -201,7 +199,7 @@ int main()
         yAccelerationText.setString("Y acceleration " + std::to_string(bouncyBall.GetAcceleration().y));
 
         window.clear();
-        bouncyBall.UpdatePhysics(windowWidth, windowHeight, dt);
+        bouncyBall.UpdatePhysics(windowWidth, windowHeight, dt.asSeconds());
         bouncyBall.Render(window);
 
         window.draw(xVelocitytext);
